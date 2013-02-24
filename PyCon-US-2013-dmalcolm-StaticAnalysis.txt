@@ -1,0 +1,124 @@
+////
+Death by a thousand leaks: what statically-analysing 370 Python extensions looks like
+=====================================================================================
+////
+
+title
+=====
+:author:    David Malcolm
+:backend:   slidy
+:copyright: David Malcolm (CC BY-SA-3.0)
+//// http://creativecommons.org/licenses/by-sa/3.0/ ////
+////
+:max-width: 45em
+
+
+.https://us.pycon.org/2013/schedule/presentation/95/
+
+What happens when you run a custom C static analysis tool ("cpychecker") on hundreds of Python extensions? I'll talk about the kinds of errors that my tool found, how to run it on your own code, and how to prevent memory leaks and crasher bugs in the C code of your Python extension modules.
+
+gcc-with-cpychecker is a static analysis tool I've written that can automatically detect reference- counting bugs in the C code of Python extension modules (and various other mistakes).
+
+I've run the tool on hundreds of Python extensions, and it has found hundreds of real bugs.
+////
+
+What is static analysis?
+------------------------
+
+* Discovering properties of source code *without running it*
+* Programs that analyze other programs
+* Treating code as data
+* In particular, automatically finding bugs in code
+
+What kind of code is this talk about?
+--------------------------------------
+
+* The C code of Python extension modules
+
+Outline
+-------
+
+* Intro to the cpychecker tool
+* How to run the tool on your own code
+* How I ran the tool on *lots* of code
+* What bugs came up frequently
+* Recommendations on dealing with C and C++ from Python
+* Q & A
+
+
+cpychecker
+----------
+
+https://gcc-python-plugin.readthedocs.org/en/latest/cpychecker.html
+
+See my PyCon US 2012 talk:
+Static analysis of Python extension modules using GCC
+https://us.pycon.org/2012/schedule/presentation/78/
+
+
+
+What it checks for (1)
+----------------------
+
+* Reference counts: aka ob_refcnt
+* Dereferencing a NULL pointer
+* Passing NULL to CPython APIs that will crash on NULL
+* Usage of uninitialized local variables
+* Dereferencing a pointer to freed memory
+* Returning a pointer to freed memory
+
+What it checks for (2)
+----------------------
+
+* Returning NULL without setting an exception
+* type in calls to PyArg_ParseTuple et al
+* types and NULL termination of PyMethodDef tables
+* types and NULL termination of PyObject_Call{Function|Method}ObjArgs
+
+What it doesn't check for (patches welcome!)
+--------------------------------------------
+
+* tp_traverse errors (which can mess up the garbage collector); missing it altogether, or omitting fields
+* errors in GIL handling
+* lock/release mismatches
+* missed opportunities to release the GIL (e.g. compute-intensive functions; functions that wait on IO/syscalls)
+
+What it can't check for
+------------------------
+
+* Does the code "do the right thing"?
+
+
+Running cpychecker
+------------------
+
+
+Running cpychecker a *lot*
+--------------------------
+
+
+What bugs came up frequently
+----------------------------
+
+
+Dealing with C and C++ from Python
+----------------------------------
+
+
+Q & A
+-----
+
+* Thanks for listening
+* Slides built using asciidoc's slidy backend
+
+image::http://i.creativecommons.org/l/by-sa/3.0/88x31.png[Creative Commons License, link="http://creativecommons.org/licenses/by-sa/3.0/deed.en_US"]
+
+This work is licensed under a http://creativecommons.org/licenses/by-sa/3.0/deed.en_US[Creative Commons Attribution-ShareAlike 3.0 Unported License]
+
+
+
+////
+See http://kaczanowscy.pl/tomek/2011-09/nice-presentations-in-no-time-with-asciidoc-and-slidy for help with asciidoc and slidy
+
+asciidoc cheatsheet: http://powerman.name/doc/asciidoc
+////
