@@ -1,18 +1,18 @@
-////
-Death by a thousand leaks: what statically-analysing 370 Python extensions looks like
+Death by a thousand leaks: What statically-analysing 370 Python extensions looks like
 =====================================================================================
+
+////
+FIXME: how to tweak the title page?
+David Malcolm
+
+dmalcolm@redhat.com
 ////
 
-title
-=====
 :author:    David Malcolm
 :backend:   slidy
 :copyright: David Malcolm (CC BY-SA-3.0)
-//// http://creativecommons.org/licenses/by-sa/3.0/ ////
+
 ////
-:max-width: 45em
-
-
 .https://us.pycon.org/2013/schedule/presentation/95/
 
 What happens when you run a custom C static analysis tool ("cpychecker") on hundreds of Python extensions? I'll talk about the kinds of errors that my tool found, how to run it on your own code, and how to prevent memory leaks and crasher bugs in the C code of your Python extension modules.
@@ -25,20 +25,29 @@ I've run the tool on hundreds of Python extensions, and it has found hundreds of
 What is static analysis?
 ------------------------
 
-* Discovering properties of source code *without running it*
+* Discovering properties of a program *without running it*
 * Programs that analyze other programs
-* Treating code as data
+* Treating programs as data, rather than code
 * In particular, automatically finding bugs in code
 
-What kind of code is this talk about?
---------------------------------------
+What kind of code will be analyzed?
+-----------------------------------
 
-* The C code of Python extension modules
+For this talk:
+
+    The C code of Python extension modules
+
+Prerequisites
+-------------
+* I'm going to assume basic familiarity with Python, and with either C or C++
+
+* Hopefully you've used, debugged, or written a Python extension module in C (perhaps via SWIG or Cython)
+
 
 Outline
 -------
 
-* Intro to the cpychecker tool
+* Intro to "cpychecker"
 * How to run the tool on your own code
 * How I ran the tool on *lots* of code
 * What bugs came up frequently
@@ -49,31 +58,98 @@ Outline
 cpychecker
 ----------
 
-https://gcc-python-plugin.readthedocs.org/en/latest/cpychecker.html
+* Part of my Python plugin for GCC
+* 6500 lines of Python code implementing a static checker for C extension modules
+* It finds bugs in the C code of Python extension modules
+* https://gcc-python-plugin.readthedocs.org/en/latest/cpychecker.html
+
+[source,bash]
+----
+git clone git://git.fedorahosted.org/gcc-python-plugin.git
+----
 
 See my PyCon US 2012 talk:
 Static analysis of Python extension modules using GCC
 https://us.pycon.org/2012/schedule/presentation/78/
 
 
+What it checks for (1): Reference counting
+------------------------------------------
 
-What it checks for (1)
-----------------------
+For every object:
 
-* Reference counts: aka ob_refcnt
-* Dereferencing a NULL pointer
-* Passing NULL to CPython APIs that will crash on NULL
-* Usage of uninitialized local variables
-* Dereferencing a pointer to freed memory
-* Returning a pointer to freed memory
+* "what is my reference count?" aka "ob_refcnt" (the object's view of how many pointers point to it)
+* the reality of how many pointers point to it
+
+As a C extension module author you must manually keep these in sync using Py_INCREF and Py_DECREF.
+
+The two kinds of bugs:
+
+* ob_refcnt too high: (memory leaks - hence the title of this talk)
+* ob_refcnt too low: (crashes)
+
+cpychecker warns about these issues
+
+[source,bash]
+----
+git clone git://git.fedorahosted.org/gcc-python-plugin.git
+----
+
+
+Checking reference counts
+-------------------------
+* For each path through the function and PyObject*, it determines:
+  - what the reference count *ought to be* at the end of the function (based on how many pointers point to the object)
+  - what the reference count *is*
+
+It will issues warnings for any that are incorrect.
+
+
+Limitations of the refcount checking
+------------------------------------
+
+* purely intraprocedural
+* assumes every function returning a PyObject* returns a *new* reference, rather than a *borrowed* reference
+  - it knows about most of the CPython API and its rules
+  - you can manually mark functions with non-standard behavior
+* only tracks 0 and 1 times through any loop, to ensure that the analysis doesn't go on forever
+* can be defeated by relatively simple code (turn up --maxtrans argument)
+
+[source,bash]
+----
+git clone git://git.fedorahosted.org/gcc-python-plugin.git
+----
+
 
 What it checks for (2)
 ----------------------
 
+It checks for the following along all of those code paths:
+
+* Dereferencing a NULL pointer (e.g. using result of an allocator without checking the result is non-NULL)
+* Passing NULL to CPython APIs that will crash on NULL
+* Usage of uninitialized local variables
+* Dereferencing a pointer to freed memory
+* Returning a pointer to freed memory
 * Returning NULL without setting an exception
+
+[source,bash]
+----
+git clone git://git.fedorahosted.org/gcc-python-plugin.git
+----
+
+What it checks for (3)
+----------------------
+It also does some simpler checking:
+
 * type in calls to PyArg_ParseTuple et al
 * types and NULL termination of PyMethodDef tables
 * types and NULL termination of PyObject_Call{Function|Method}ObjArgs
+
+[source,bash]
+----
+git clone git://git.fedorahosted.org/gcc-python-plugin.git
+----
 
 What it doesn't check for (patches welcome!)
 --------------------------------------------
@@ -83,32 +159,358 @@ What it doesn't check for (patches welcome!)
 * lock/release mismatches
 * missed opportunities to release the GIL (e.g. compute-intensive functions; functions that wait on IO/syscalls)
 
+[source,bash]
+----
+git clone git://git.fedorahosted.org/gcc-python-plugin.git
+----
+
 What it can't check for
 ------------------------
 
 * Does the code "do the right thing"?
 
+[source,bash]
+----
+git clone git://git.fedorahosted.org/gcc-python-plugin.git
+----
 
-Running cpychecker
-------------------
+
+Building cpychecker
+-------------------
+
+.Dependencies (on Fedora)
+[source,bash]
+----
+sudo yum install \
+   gcc-plugin-devel \
+   python-devel \
+   python-six \
+   python-pygments \
+   graphviz
+----
+
+.Downloading the code
+[source,bash]
+----
+git clone git://git.fedorahosted.org/gcc-python-plugin.git
+----
+
+Building the checker
+--------------------
+.Building the checker
+[source,bash]
+----
+make plugin
+----
+
+.Checking that it's working
+[source,bash]
+----
+make demo
+----
+
+Textual output from "make demo"
+-------------------------------
+[source,bash]
+----
+demo.c: In function ‘make_a_list_of_random_ints_badly’:
+demo.c:90:26: warning: Mismatching type in call to PyArg_ParseTuple with format code "i" [enabled by default]
+  argument 3 ("&count") had type
+    "long int *" (pointing to 64 bits)
+  but was expecting
+    "int *" (pointing to 32 bits)
+  for format code "i"
+demo.c:102:1: warning: ob_refcnt of '*item' is 1 too high [enabled by default]
+demo.c:102:1: note: was expecting final ob_refcnt to be N + 1 (for some unknown N)
+demo.c:102:1: note: due to object being referenced by: PyListObject.ob_item[0]
+demo.c:102:1: note: but final ob_refcnt is N + 2
+demo.c:97:14: note: PyLongObject allocated at:         item = PyLong_FromLong(random());
+demo.c:90:26: note: when PyArg_ParseTuple() succeeds at:     if (!PyArg_ParseTuple(args, "i", &count)) {
+demo.c:90:8: note: taking False path at:     if (!PyArg_ParseTuple(args, "i", &count)) {
+demo.c:94:10: note: reaching:     list = PyList_New(0);
+demo.c:94:10: note: when PyList_New() succeeds at:     list = PyList_New(0);
+demo.c:96:5: note: when considering range: 1 <= count.0 <= 0x7fffffff at:     for (i = 0; i < count; i++) {
+demo.c:96:5: note: taking True path at:     for (i = 0; i < count; i++) {
+demo.c:97:31: note: reaching:         item = PyLong_FromLong(random());
+demo.c:97:14: note: when PyLong_FromLong() succeeds at:         item = PyLong_FromLong(random());
+demo.c:97:14: note: ob_refcnt is now refs: 1 + N where N >= 0
+demo.c:98:22: note: when PyList_Append() succeeds at:         PyList_Append(list, item);
+demo.c:98:22: note: ob_refcnt is now refs: 2 + N where N >= 0
+demo.c:98:22: note: '*item' is now referenced by 1 non-stack value(s): PyListObject.ob_item[0]
+demo.c:96:5: note: when considering count.0 == (int)1 from demo.c:90 at:     for (i = 0; i < count; i++) {
+demo.c:96:5: note: taking False path at:     for (i = 0; i < count; i++) {
+demo.c:101:5: note: reaching:     return list;
+demo.c:102:1: note: returning
+demo.c:102:1: note: found 1 similar trace(s) to this
+demo.c:98:22: warning: calling PyList_Append with NULL as argument 1 (list) at demo.c:98 [enabled by default]
+demo.c:90:26: note: when PyArg_ParseTuple() succeeds at:     if (!PyArg_ParseTuple(args, "i", &count)) {
+demo.c:90:8: note: taking False path at:     if (!PyArg_ParseTuple(args, "i", &count)) {
+demo.c:94:10: note: reaching:     list = PyList_New(0);
+demo.c:94:10: note: when PyList_New() fails at:     list = PyList_New(0);
+demo.c:96:5: note: when considering range: 1 <= count.0 <= 0x7fffffff at:     for (i = 0; i < count; i++) {
+demo.c:96:5: note: taking True path at:     for (i = 0; i < count; i++) {
+demo.c:97:31: note: reaching:         item = PyLong_FromLong(random());
+demo.c:97:14: note: when PyLong_FromLong() succeeds at:         item = PyLong_FromLong(random());
+demo.c:98:22: note: PyList_Append() invokes Py_TYPE() on the pointer via the PyList_Check() macro, thus accessing (NULL)->ob_type
+demo.c:98:22: note: found 1 similar trace(s) to this
+demo.c:86:1: note: graphical error report for function 'make_a_list_of_random_ints_badly' written out to 'demo.c.make_a_list_of_random_ints_badly-refcount-errors.html'
+demo.c: In function ‘buggy_converter’:
+demo.c:76:26: warning: Mismatching type in call to PyArg_ParseTuple with format code "O&" [enabled by default]
+  argument 4 ("&i") had type
+    "int *" (pointing to 32 bits)
+  but was expecting
+    "Py_ssize_t *" (pointing to 64 bits) (from second argument of "int (*fn) (struct PyObject *, Py_ssize_t *)")
+  for format code "O&"
+demo.c: In function ‘kwargs_example’:
+demo.c:62:37: warning: Mismatching type in call to PyArg_ParseTupleAndKeywords with format code "(ff):kwargs_example" [enabled by default]
+  argument 5 ("&x") had type
+    "double *" (pointing to 64 bits)
+  but was expecting
+    "float *" (pointing to 32 bits)
+  for format code "f"
+demo.c:62:37: warning: Mismatching type in call to PyArg_ParseTupleAndKeywords with format code "(ff):kwargs_example" [enabled by default]
+  argument 6 ("&y") had type
+    "double *" (pointing to 64 bits)
+  but was expecting
+    "float *" (pointing to 32 bits)
+  for format code "f"
+demo.c: In function ‘too_many_varargs’:
+demo.c:50:26: warning: Too many arguments in call to PyArg_ParseTuple with format string "i"
+  expected 1 extra arguments:
+    "int *" (pointing to 32 bits)
+  but got 2:
+    "int *" (pointing to 32 bits)
+    "int *" (pointing to 32 bits)
+ [enabled by default]
+demo.c: In function ‘not_enough_varargs’:
+demo.c:40:25: warning: Not enough arguments in call to PyArg_ParseTuple with format string "i"
+  expected 1 extra arguments:
+    "int *" (pointing to 32 bits)
+  but got none
+ [enabled by default]
+demo.c: In function ‘socket_htons’:
+demo.c:30:26: warning: Mismatching type in call to PyArg_ParseTuple with format code "i:htons" [enabled by default]
+  argument 3 ("&x1") had type
+    "long unsigned int *" (pointing to 64 bits)
+  but was expecting
+    "int *" (pointing to 32 bits)
+  for format code "i"
+----
+
+
+
+Running cpychecker directly
+---------------------------
+.Distutils
+[source,bash]
+----
+CC=/path/to/built/plugin/gcc-with-cpychecker \
+   python setup.py build
+----
+to set the *environment variable*
+
+.Makefiles
+[source,bash]
+----
+make CC=/path/to/built/plugin/gcc-with-cpychecker
+----
+to override the *Makefile variable* CC.
 
 
 Running cpychecker a *lot*
 --------------------------
+Scaling up to hundreds of projects:
+
+* building via RPM
+  - hides the distutils vs Makefile vs CMake etc
+* "mock" builds
+  - every build gets its own freshly-provisioned chroot
+* running extra checkers:
+  - cppcheck
+  - clang-analyzer
+  - gcc warnings
+* detect analyzers that fail or exceed 1 minute to run
+* separation of model from presentation
+  - "Firehose" XML format: https://github.com/fedora-static-analysis/firehose
+
+gcc-with-analysis
+-----------------
+THIS SLIDE IS A LIE
+
+
+Mass run
+--------
+What packages?
+
+TODO
+
+Fun with metrics (1)
+--------------------
+TODO: whare are the most/least commonly used  Py/_Py entrypoints?
+
+
+Fun with metrics (2)
+--------------------
+TODO: cyclometric complexity
 
 
 What bugs came up frequently
 ----------------------------
+TODO
+
+
+
+Missing Py_INCREF() on Py_None
+------------------------------
+[source,c]
+----
+PyObject*
+some_method(PyObject *self, PyObject *args)
+{
+    [...snip...]
+
+    /* BUG: loses a reference to Py_None */
+    return Py_None;
+}
+----
+
+[source, bash]
+----
+$ python script.py
+Fatal error: deallocating None
+----
+
+Fixing Py_INCREF on Py_None
+---------------------------
+
+[source,c]
+----
+PyObject*
+some_method(PyObject *self, PyObject *args)
+{
+    [...snip...]
+
+    /* Fixed version of the above: */
+    Py_RETURN_NONE;
+}
+----
+
+Reference leak in Py_BuildValue with "O"
+----------------------------------------
+[source,c]
+----
+    /* BUG: reference leak: */
+    return Py_BuildValue("O", some_object_we_own_a_ref_on);
+----
+
+[source,c]
+----
+    /* Fixed version of the above: */
+    return Py_BuildValue("N", some_object_we_own_a_ref_on);
+----
+
+[source,c]
+----
+    /* If it's just one object, why use Py_BuildValue? */
+    return some_object_we_own_a_ref_on;
+----
+
+
+DO NOT DO THIS: Py_XDECREF(PyObject_CallObject())  (1)
+------------------------------------------------------
+
+[source,c]
+----
+    /*
+      This is bogus code: Py_XDECREF expands its argument multiple times,
+      so the function is actually called up to 4 times
+      (assuming a non pydebug build of CPython).
+    */
+    Py_XDECREF(PyObject_CallObject(callable, args));
+
+    /* Seen in the wild in:
+       python-alsa-1.0.25-1.fc17:
+         pyalsa/alsamixer.c:179
+         pyalsa/alsahcontrol.c:190
+         pyalsa/alsaseq.c:3277
+
+       python-4Suite-XML-1.0.2-14.fc17:
+         Ft/Xml/src/domlette/refcounts.c:80
+    */
+----
+
+DO NOT DO THIS: Py_XDECREF(PyObject_CallObject())  (2)
+------------------------------------------------------
+
+This expands to:
+[source, c]
+----
+  do { 
+    if ((PyObject_CallObject(callable, args)) == ((void *)0))
+      ; 
+    else 
+      do {
+        if (--(PyObject_CallObject(callable, args)->ob_refcnt) != 0)
+          ;
+        else
+          (*(PyObject_CallObject(callable, args)->ob_type)->tp_dealloc)
+            PyObject_CallObject(callable, args);
+      } while (0);
+  } while (0);
+----
+
+Filed as http://bugs.python.org/issue17206
+
+
+DO NOT DO THIS: Py_XDECREF(PyObject_CallObject())  (3)
+------------------------------------------------------
+
+...which is effectively:
+[source, c]
+----
+    /* Call it once */
+    if ((PyObject_CallObject(callable, args)) != NULL) {
+        /* 
+           If it doesn't raise an exception, leak the reference (BUG 1),
+           and call it again (BUG 2).
+
+           Assume that the second call doesn't raise an exception,
+           otherwise segfault the interpreter (BUG 3),
+           and DECREF the result, but don't deallocate if the refcount
+           is zero (BUGS 4 and 5)
+         */
+        if (--(PyObject_CallObject(callable, args)->ob_refcnt) == 0) {
+          /* 
+            If the refcount is zero, call it again! (BUG 6)
+            Assume the result is non-NULL (otherwise segfaulting, BUG 7)
+            and deallocate whatever you got back (even if the refcount
+            is non-zero, BUG 8)
+           */
+          (*(PyObject_CallObject(callable, args)->ob_type)->tp_dealloc)
+            /* and for good measure, call it agains (BUG 9)
+               and leak a reference to the result (BUG 10) */
+            PyObject_CallObject(callable, args);
+        }
+    }
+----
+
+Filed as http://bugs.python.org/issue17206
+
+
 
 
 Dealing with C and C++ from Python
 ----------------------------------
+TODO
 
 
 Q & A
 -----
 
-* Thanks for listening
+
+[big]#Thanks for listening!#
+
+
 * Slides built using asciidoc's slidy backend
 
 image::http://i.creativecommons.org/l/by-sa/3.0/88x31.png[Creative Commons License, link="http://creativecommons.org/licenses/by-sa/3.0/deed.en_US"]
