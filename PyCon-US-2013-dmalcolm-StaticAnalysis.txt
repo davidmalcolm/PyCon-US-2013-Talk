@@ -345,20 +345,23 @@ Scaling up (continued)
 * capture any sources mentioned in a report
 * can also capture arbitrary data e.g. code metrics
 
-TODO: Graphical report
-----------------------
+Graphical report
+----------------
 
-(show source with issues inline)
+image:images/viewing-an-issue.png[]
 
-TODO: Graphical report (2)
---------------------------
 
-(show a failure)
+Comparing builds
+----------------
 
-TODO: Graphical report (3)
---------------------------
+image:images/comparison-view.png[]
 
-(show the diff view)
+
+Managing failures
+-----------------
+
+image:images/viewing-a-failure.png[]
+
 
 Mass run
 --------
