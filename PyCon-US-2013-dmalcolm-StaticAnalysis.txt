@@ -518,15 +518,76 @@ TODO: redo this for *all* of the Python packages (370)
  (('cppcheck', 'doubleFree'), 1)]
 ----
 
-TODO
+What did cpychecker complain about?
+-----------------------------------
 
-What are the format string errors?
-----------------------------------
+[source,python]
+----
+[('refcount-too-high', 851),
+ ('mismatching-type-in-format-string', 783),
+ ('returns-NULL-without-setting-exception', 610),
+ ('null-ptr-dereference', 295),
+ ('null-ptr-argument', 194),
+ ('refcount-too-low', 193),
+ ('flags-within-PyMethodDef', 160),
+ ('usage-of-uninitialized-data', 62),
+ ('missing-keyword-argument', 6),
+ ('arg-was-not-PyObject-ptr', 4),
+ ('not-enough-vars-in-format-string', 4),
+ ('read-from-deallocated-memory', 3),
+ ('too-many-vars-in-format-string', 2),
+ ('returns-pointer-to-deallocated-memory', 1),
+ ('call-of-null-function-ptr', 1)]
+----
 
-TODO
 
-What bugs came up frequently
-----------------------------
+What were those format string errors?
+-------------------------------------
+a.k.a. the 783 'mismatching-type-in-format-string' errors
+
+By function:
+[source,python]
+----
+[(u'PyArg_ParseTuple', 487),
+ (u'PyArg_ParseTupleAndKeywords', 170),
+ (u'Py_BuildValue', 135),
+ (u'PyArg_Parse', 2)]
+----
+
+(in a way this is merely expressing what I'm checking for)
+
+650 errors using PyArg_ParseTuple[AndKeywords]
+----------------------------------------------
+
+* 9 errors where "i" was used to unpack an int to a 32-bit destination,
+  but was passed a 64-bit destination (data corruption)
+* 282 "errors" where "s", "s#", "z", "z#" was used to unpack a string object
+  to a "char *", rather than a "const char*"
+* numerous false alarms for the "O" and "O!" code due to the checker not
+  knowing about the relevant PyTypeObject
+
+So *most* of these are false alarms
+
+
+489 places lacking error-checking
+---------------------------------
+
+[source,python]
+----
+[('null-ptr-dereference', 295),
+ ('null-ptr-argument', 194)]
+----
+
+
+Reference-counting bugs
+-----------------------
+
+[source,python]
+----
+[('refcount-too-high', 851),
+ ('refcount-too-low', 193)]
+----
+
 
 TODO: where are the leaks happening?
 
@@ -705,7 +766,13 @@ The correct way to discard the result
 
 Dealing with C and C++ from Python
 ----------------------------------
-TODO
+
+* Do you *really* need C?
+  - Can you get away with pure Python code?
+* Consider using Cython
+* ctypes is good, but has its own issues
+* cffi?
+* If you must use C, run cpychecker on your code
 
 
 "goto" considered wonderful
