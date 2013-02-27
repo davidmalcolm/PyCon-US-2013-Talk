@@ -540,45 +540,6 @@ What did cpychecker complain about?
  ('call-of-null-function-ptr', 1)]
 ----
 
-
-What were those format string errors?
--------------------------------------
-a.k.a. the 783 'mismatching-type-in-format-string' errors
-
-By function:
-[source,python]
-----
-[(u'PyArg_ParseTuple', 487),
- (u'PyArg_ParseTupleAndKeywords', 170),
- (u'Py_BuildValue', 135),
- (u'PyArg_Parse', 2)]
-----
-
-(in a way this is merely expressing what I'm checking for)
-
-650 errors using PyArg_ParseTuple[AndKeywords]
-----------------------------------------------
-
-* 9 errors where "i" was used to unpack an int to a 32-bit destination,
-  but was passed a 64-bit destination (data corruption)
-* 282 "errors" where "s", "s#", "z", "z#" was used to unpack a string object
-  to a "char *", rather than a "const char*"
-* numerous false alarms for the "O" and "O!" code due to the checker not
-  knowing about the relevant PyTypeObject
-
-So *most* of these are false alarms
-
-
-489 places lacking error-checking
----------------------------------
-
-[source,python]
-----
-[('null-ptr-dereference', 295),
- ('null-ptr-argument', 194)]
-----
-
-
 Reference-counting bugs
 -----------------------
 
@@ -665,6 +626,44 @@ Reference leak in Py_BuildValue with "O"
 ----
     /* If it's just one object, why use Py_BuildValue? */
     return some_object_we_own_a_ref_on;
+----
+
+
+What were those format string errors?
+-------------------------------------
+a.k.a. the 783 'mismatching-type-in-format-string' errors
+
+By function:
+[source,python]
+----
+[(u'PyArg_ParseTuple', 487),
+ (u'PyArg_ParseTupleAndKeywords', 170),
+ (u'Py_BuildValue', 135),
+ (u'PyArg_Parse', 2)]
+----
+
+(in a way this is merely expressing what I'm checking for)
+
+650 errors using PyArg_ParseTuple[AndKeywords]
+----------------------------------------------
+
+* 9 errors where "i" was used to unpack an int to a 32-bit destination,
+  but was passed a 64-bit destination (data corruption)
+* 282 "errors" where "s", "s#", "z", "z#" was used to unpack a string object
+  to a "char \*", rather than a "const char *"
+* numerous false alarms for the "O" and "O!" code due to the checker not
+  knowing about the relevant PyTypeObject
+
+So *most* of these are false alarms
+
+
+489 places lacking error-checking
+---------------------------------
+
+[source,python]
+----
+[('null-ptr-dereference', 295),
+ ('null-ptr-argument', 194)]
 ----
 
 
