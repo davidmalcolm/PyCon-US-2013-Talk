@@ -298,8 +298,9 @@ demo.c:30:26: warning: Mismatching type in call to PyArg_ParseTuple with format 
 ----
 
 
-TODO: Graphical view
---------------------
+Graphical output from "cpychecker"
+----------------------------------
+image:images/sample-html-error-report.png[]
 
 
 Running it on your own code

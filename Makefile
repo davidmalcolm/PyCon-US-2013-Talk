@@ -8,3 +8,5 @@ publish:
 	scp \
 	    PyCon-US-2013-dmalcolm-StaticAnalysis.html \
 	    dmalcolm@fedorapeople.org:public_html/presentations/PyCon-US-2013
+	scp -r images \
+	    dmalcolm@fedorapeople.org:public_html/presentations/PyCon-US-2013
