@@ -366,11 +366,14 @@ Managing failures
 image:images/viewing-a-failure.png[]
 
 
-Mass run
---------
-What packages?
+Analyze all the things!
+-----------------------
 
-TODO
+* For PyCon:
+  - 370(ish) packages: all of the Python C code in Fedora
+* For this rehearsal:
+  - a subset: 113 packages: everything named "python-*"
+
 
 What are the 20 *most* commonly used  Py/_Py entrypoints?
 -------------------------------------------------------
