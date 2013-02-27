@@ -549,13 +549,15 @@ Reference-counting bugs
  ('refcount-too-low', 193)]
 ----
 
+Leaving an ob_refcnt too high is thus the most common true bug the tool is
+reporting
 
 TODO: where are the leaks happening?
 
 
 Missing Py_INCREF() on Py_None
 ------------------------------
-(Saw this specific error 14 times on the 113 package run)
+(Saw this specific instance of 'refcount-too-low' 14 times on the 113 package run)
 
 ////
 $ for f in 2013-02-24-fedora-17-mass-run/*/*/*/x86_64/static-analysis/reports/*.xml; do grep 'consider using "Py_RETURN_NONE;"' $f ; done
