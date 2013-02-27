@@ -335,6 +335,9 @@ Scaling up to hundreds of projects:
   - clang-analyzer
   - gcc warnings
 
+mock-with-analysis: https://github.com/fedora-static-analysis/mock-with-analysis
+
+
 Scaling up (continued)
 ----------------------
 
@@ -748,6 +751,8 @@ Q & A
 image::http://i.creativecommons.org/l/by-sa/3.0/88x31.png[Creative Commons License, link="http://creativecommons.org/licenses/by-sa/3.0/deed.en_US"]
 
 This work is licensed under a http://creativecommons.org/licenses/by-sa/3.0/deed.en_US[Creative Commons Attribution-ShareAlike 3.0 Unported License]
+
+Source code for talk: https://github.com/davidmalcolm/PyCon-US-2013-Talk
 
 * Slides built using asciidoc's slidy backend
 
