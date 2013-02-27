@@ -621,7 +621,7 @@ Reference leak in Py_BuildValue with "O"
 [source,c]
 ----
     /* Fixed version of the above: */
-    return Py_BuildValue("Ni", some_object_we_own_a_ref_ on, 42);
+    return Py_BuildValue("Ni", some_object_we_own_a_ref_on, 42);
 ----
 
 [source,c]
@@ -649,8 +649,9 @@ By function:
 650 errors using PyArg_ParseTuple[AndKeywords]
 ----------------------------------------------
 
-* 9 errors where "i" was used to unpack an int to a 32-bit destination,
-  but was passed a 64-bit destination (data corruption)
+* 9 errors where "i" was used to unpack a 32-bit int value,
+  but was passed a 64-bit destination (partial initialization, leading
+  to possible data corruption)
 * 282 "errors" where "s", "s#", "z", "z#" was used to unpack a string object
   to a "char \*", rather than a "const char *"
 * numerous false alarms for the "O" and "O!" code due to the checker not
@@ -666,6 +667,34 @@ So *most* of these are false alarms
 ----
 [('null-ptr-dereference', 295),
  ('null-ptr-argument', 194)]
+----
+
+Do more error-checking, please!
+
+
+"goto" considered wonderful
+---------------------------
+[source,c]
+----
+{
+    PyObject *local0 = NULL;
+    PyObject *local1 = NULL;
+    PyObject *local2 = NULL;
+    /* etc */
+       
+    local0 = PyFoo_DoBar();
+    if (!local0) goto error;
+
+    /* etc */
+
+    return result;
+
+error:
+    Py_XDECREF(local2);
+    Py_XDECREF(local1);
+    Py_XDECREF(local0);
+    return NULL;
+}    
 ----
 
 
@@ -774,32 +803,6 @@ Dealing with C and C++ from Python
 * ctypes is good, but has its own issues
 * cffi?
 * If you must use C, run cpychecker on your code
-
-
-"goto" considered wonderful
----------------------------
-[source,c]
-----
-{
-    PyObject *local0 = NULL;
-    PyObject *local1 = NULL;
-    PyObject *local2 = NULL;
-    /* etc */
-       
-    local0 = PyFoo_DoBar();
-    if (!local0) goto error;
-
-    /* etc */
-
-    return result;
-
-error:
-    Py_XDECREF(local2);
-    Py_XDECREF(local1);
-    Py_XDECREF(local0);
-    return NULL;
-}    
-----
 
 
 
