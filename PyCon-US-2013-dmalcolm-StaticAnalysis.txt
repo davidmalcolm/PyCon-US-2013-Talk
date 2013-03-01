@@ -438,7 +438,7 @@ FIXME: this is just a snapshot of the 2013-02-25 data (113 packages)
 
 What are the 10 most complicated functions?
 -------------------------------------------
-i.e. query by cyclometric complexity
+i.e. query by cyclomatic complexity
 
 [source,python]
 ----
