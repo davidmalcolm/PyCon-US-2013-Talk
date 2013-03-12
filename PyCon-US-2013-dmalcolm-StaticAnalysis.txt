@@ -1,15 +1,8 @@
 Death by a thousand leaks: What statically-analysing 370 Python extensions looks like
 =====================================================================================
-
-////
-FIXME: how to tweak the title page?
-David Malcolm
-
-dmalcolm@redhat.com
-////
+David Malcolm <dmalcolm@redhat.com>
 
 :author:    David Malcolm
-:backend:   slidy
 :copyright: David Malcolm (CC BY-SA-3.0)
 
 ////
