@@ -369,7 +369,7 @@ Analyze all the things!
 
 
 What are the 20 *most* commonly used  Py/_Py entrypoints?
--------------------------------------------------------
+---------------------------------------------------------
 
 [source,python]
 ----
@@ -395,35 +395,175 @@ What are the 20 *most* commonly used  Py/_Py entrypoints?
 ----
 
 
-What are the 20 *least* commonly used  Py/_Py entrypoints?
-----------------------------------------------------------
+What are the *least* commonly used  Py/_Py entrypoints?
+-------------------------------------------------------
 
-[source,python]
-----
-[(u'_PyLong_FromByteArray', 1),
- (u'_PylibMC_Deflate', 1),
- (u'PyObject_DelItem', 1),
- (u'PyNumber_InPlacePower', 1),
- (u'PyShm_semaphore', 1),
- (u'PySys_GetObject', 1),
- (u'PyGreenlet_GetCurrent', 1),
- (u'_PylibMC_Inflate', 1),
- (u'Py_SetProgramName', 1),
- (u'PyArray_Free', 1),
- (u'Py_Initialize', 1),
+There are many with just 1 user, but most of these are false positives
+from projects using the Py/_Py prefix.
+
+* about 50 actual CPython API entrypoints with just one user
+* about 100 "entrypoints" due to other projects reusing the prefix
+* see source code of this talk if you're interested in the data:
+    https://github.com/davidmalcolm/PyCon-US-2013-Talk
+
+////
+Apparent true CPython API entrypoints with one user in 2013-03-14 dataset:
+ (u'PyBuffer_FromMemory', 1),
+ (u'PyBuffer_FromReadWriteObject', 1),
+ (u'PyCapsule_GetContext', 1),
+ (u'PyCapsule_GetName', 1),
+ (u'PyCapsule_IsValid', 1),
+ (u'PyClass_New', 1),
+ (u'PyCodec_Encoder', 1),
+ (u'PyDict_Items', 1),
+ (u'PyDict_MergeFromSeq2', 1),
+ (u'PyDict_Update', 1),
+ (u'PyErr_NewExceptionWithDoc', 1),
+ (u'PyFile_SetBufSize', 1),
  (u'PyFile_WriteObject', 1),
- (u'_PyLong_Frexp', 1),
- (u'PyGreenlet_SetParent', 1),
- (u'PyNumber_AsSsize_t', 1),
- (u'PyCapsule_New', 1),
- (u'PyInt_FromSize_t', 1),
- (u'PyNumber_Add', 1),
+ (u'PyInt_AsUnsignedLongLongMask', 1),
+ (u'PyInt_Check', 1),
+ (u'PyList_AsTuple', 1),
+ (u'PyList_Reverse', 1),
+ (u'PyLong_AsUnsignedLongMask', 1),
+ (u'PyLong_AsVoidPtr', 1),
+ (u'PyMarshal_ReadObjectFromString', 1),
+ (u'PyMarshal_WriteObjectToString', 1),
+ (u'PyMethod_New', 1),
+ (u'PyNumber_CoerceEx', 1),
+ (u'PyNumber_InPlacePower', 1),
+ (u'PyNumber_Power', 1),
+ (u'PyOS_mystrnicmp', 1),
+ (u'PyRun_SimpleFileExFlags', 1),
+ (u'PySeqIter_New', 1),
+ (u'PySequence_Repeat', 1),
+ (u'PySequence_SetSlice', 1),
+ (u'PySet_Add', 1),
+ (u'PySet_Contains', 1),
+ (u'PySet_New', 1),
+ (u'PyString_DecodeEscape', 1),
+ (u'PyString_FromFormatV', 1),
+ (u'PyStructSequence_InitType', 1),
+ (u'PyStructSequence_New', 1),
  (u'PyThreadState_GetDict', 1),
- (u'PyArray_CanCastSafely', 1),
- (u'PyNumber_Power', 1)]
-----
+ (u'PyUnicodeUCS4_AsRawUnicodeEscapeString', 1),
+ (u'PyUnicodeUCS4_DecodeUnicodeEscape', 1),
+ (u'PyUnicodeUCS4_Encode', 1),
+ (u'PyUnicodeUCS4_Replace', 1),
+ (u'PyUnicodeUCS4_Resize', 1),
+ (u'Py_GetArgcArgv', 1),
+ (u'Py_Initialiaze', 1),
+ (u'Py_InitializeEx', 1),
+ (u'Py_Main', 1),
+ (u'_PyArg_Parse_SizeT', 1),
+ (u'_PyUnicode_AsString', 1),
 
-FIXME: this is just a snapshot of the 2013-02-25 data (113 packages)
+
+Apparent "invaders" of the namespace, with 2013-03-14 dataset:
+
+ (u'PyArray_As1D', 1),
+ (u'PyArray_CanCastSafely', 1),
+ (u'PyArray_ContiguousFromObject', 1),
+ (u'PyArray_Free', 1),
+ (u'PyArray_FromDimsAndData', 1),
+ (u'PyCD_New', 1),
+ (u'PyEvent_FillUserEvent', 1),
+ (u'PyEvent_New2', 1),
+ (u'PyGSL_PyArray_prepare_gsl_matrix_view', 1),
+ (u'PyGSL_PyArray_prepare_gsl_vector_view', 1),
+ (u'PyGSL_check_python_return', 1),
+ (u'PyGSL_convert_to_gsl_function', 1),
+ (u'PyGSL_error_flag', 1),
+ (u'PyGSL_get_error_object', 1),
+ (u'PyGSL_init_api', 1),
+ (u'PyGSL_init_errno', 1),
+ (u'PyGSL_matrix_check', 1),
+ (u'PyGSL_multimin_f_init', 1),
+ (u'PyGSL_pdf_dd_to_ui', 1),
+ (u'PyGSL_pdf_ddd_to_dd', 1),
+ (u'PyGSL_pdf_uiuiui_to_ui', 1),
+ (u'PyGSL_pylong_to_ulong', 1),
+ (u'PyGSL_register_accel_err_object', 1),
+ (u'PyGSL_rng_dA_to_dA', 1),
+ (u'PyGSL_rng_dd_to_ui', 1),
+ (u'PyGSL_rng_ddd_to_dd', 1),
+ (u'PyGSL_rng_ddd_to_double', 1),
+ (u'PyGSL_rng_to_ddd', 1),
+ (u'PyGSL_rng_to_nd', 1),
+ (u'PyGSL_rng_to_ulong', 1),
+ (u'PyGSL_rng_ui_to_double', 1),
+ (u'PyGSL_rng_uidA_to_uiA', 1),
+ (u'PyGSL_rng_uiuiui_to_ui', 1),
+ (u'PyGSL_rng_ul_to_ulong', 1),
+ (u'PyGSL_siman_destroy', 1),
+ (u'PyGSL_siman_release_x', 1),
+ (u'PyGame_Video_AutoInit', 1),
+ (u'PyGame_Video_AutoQuit', 1),
+ (u'PyGreenlet_GetCurrent', 1),
+ (u'PyGreenlet_SetParent', 1),
+ (u'PyImaging_MapperNew', 1),
+ (u'PyJoystick_New', 1),
+ (u'PyMOLOptions_Free', 1),
+ (u'PyMOLOptions_New', 1),
+ (u'PyMOL_CmdLoad', 1),
+ (u'PyMOL_ConfigureShadersGL', 1),
+ (u'PyMOL_Draw', 1),
+ (u'PyMOL_Free', 1),
+ (u'PyMOL_GetProgress', 1),
+ (u'PyMOL_GetProgressChanged', 1),
+ (u'PyMOL_Idle', 1),
+ (u'PyMOL_Key', 1),
+ (u'PyMOL_NewWithOptions', 1),
+ (u'PyMOL_SetDefaultMouse', 1),
+ (u'PyMOL_SetInterrupt', 1),
+ (u'PyMOL_SetSwapBuffersFn', 1),
+ (u'PyMOL_Special', 1),
+ (u'PyMOL_Start', 1),
+ (u'PyMOL_Stop', 1),
+ (u'PyNamemapper_valueForKey', 1),
+ (u'PyNetCDFFileObject_dealloc', 1)]
+ (u'PyNetCDFFileObject_new', 1),
+ (u'PyNetCDFFile_CreateDimension', 1),
+ (u'PyNetCDFFile_CreateVariable', 1),
+ (u'PyNetCDFFile_GetAttribute', 1),
+ (u'PyNetCDFFile_Sync', 1),
+ (u'PyNetCDFVariableObject_ass_item', 1),
+ (u'PyNetCDFVariableObject_item', 1),
+ (u'PyNetCDFVariable_GetShape', 1),
+ (u'PyNetCDFVariable_SetAttribute', 1),
+ (u'PyOpenSSL_LongToHex', 1),
+ (u'PyOutline_AsOutline', 1),
+ (u'PyShm_memory', 1),
+ (u'PyShm_semaphore', 1),
+ (u'PySip_new', 1),
+ (u'PySurface_Prep', 1),
+ (u'PySurface_Unprep', 1),
+ (u'PyTabprm_clear', 1),
+ (u'PyUFunc_GenericFunction', 1),
+ (u'PyUFunc_GenericReduceAt', 1),
+ (u'PyUnits_clear', 1),
+ (u'PyWcs_clear', 1),
+ (u'PyWcs_set_cpdis1', 1),
+ (u'PyWcs_set_cpdis2', 1),
+ (u'PyWcs_set_det2im1', 1),
+ (u'PyWcs_set_det2im2', 1),
+ (u'PyWcs_set_sip', 1),
+ (u'PyWcs_set_wcs', 1),
+ (u'PyWtbarr_clear', 1),
+ (u'PythonCmd_Error', 1),
+ (u'PythonData_free', 1),
+ (u'_PyGSL_register_err_object', 1),
+ (u'_PyGSL_register_error', 1),
+ (u'_PyLong_Frexp', 1),
+ (u'_PylibMC_Deflate', 1),
+ (u'_PylibMC_DoMulti', 1),
+ (u'_PylibMC_IncrMulti', 1),
+ (u'_PylibMC_Inflate', 1),
+ (u'_PylibMC_Pickle', 1),
+ (u'_PylibMC_RunCasCommand', 1),
+ (u'_PylibMC_Unpickle', 1),
+
+////
 
 
 What are the 10 most complicated functions?
