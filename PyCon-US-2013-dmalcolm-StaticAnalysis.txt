@@ -313,6 +313,25 @@ make CC=/path/to/built/plugin/gcc-with-cpychecker
 ----
 to override the *Makefile variable* CC.
 
+Analyze all the things!
+-----------------------
+
+* The goal: analyze all of the C Python extensions in a recent Linux distribution
+** Specifically: all of the Python 2 C code in Fedora 17
+*** Every source rpm that builds something that links against libpython2.7
+*** 370(ish) packages
+* The reality:
+** Some unevenness in the data coverage, so take my numbers with a pinch of salt
+
+////
+FIXME:
+  * didn't include python
+  * coverage seems uneven
+
+For the Boston rehearsal:
+  - a subset: 113 packages: everything named "python-*"
+////
+
 
 Running cpychecker a *lot*
 --------------------------
@@ -357,15 +376,6 @@ Managing failures
 -----------------
 
 image:images/viewing-a-failure.png[]
-
-
-Analyze all the things!
------------------------
-
-* For PyCon:
-  - 370(ish) packages: all of the Python C code in Fedora
-* For this rehearsal:
-  - a subset: 113 packages: everything named "python-*"
 
 
 What are the 20 *most* commonly used  Py/_Py entrypoints?
