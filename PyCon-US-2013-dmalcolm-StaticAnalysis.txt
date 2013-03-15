@@ -373,29 +373,26 @@ What are the 20 *most* commonly used  Py/_Py entrypoints?
 
 [source,python]
 ----
-[(u'PyErr_SetString', 1030),
- (u'PyArg_ParseTuple', 763),
- (u'PyErr_Format', 353),
- (u'Py_BuildValue', 338),
- (u'_PyArg_ParseTuple_SizeT', 333),
- (u'PyInt_FromLong', 326),
- (u'PyErr_Occurred', 313),
- (u'PyEval_RestoreThread', 297),
- (u'PyEval_SaveThread', 297),
- (u'PyString_FromString', 246),
- (u'PyArg_ParseTupleAndKeywords', 213),
- (u'PyErr_NoMemory', 194),
- (u'PyObject_GetAttrString', 174),
- (u'PyTuple_New', 170),
- (u'PyType_IsSubtype', 170),
- (u'PyList_New', 169),
- (u'_Py_NegativeRefcount', 168),
- (u'_Py_Dealloc', 168),
- (u'Py_InitModule4_64', 132),
- (u'PyErr_Clear', 122)]
+[(u'PyArg_ParseTuple', 3034),
+ (u'PyErr_SetString', 2954),
+ (u'Py_BuildValue', 1429),
+ (u'PyErr_Occurred', 904),
+ (u'PyString_FromString', 814),
+ (u'PyInt_FromLong', 764),
+ (u'PyErr_Format', 651),
+ (u'PyEval_RestoreThread', 615),
+ (u'PyEval_SaveThread', 615),
+ (u'PyArg_ParseTupleAndKeywords', 470),
+ (u'PyErr_NoMemory', 444),
+ (u'_PyArg_ParseTuple_SizeT', 441),
+ (u'PyErr_Clear', 427),
+ (u'PyList_New', 404),
+ (u'PyObject_GetAttrString', 394),
+ (u'PyType_IsSubtype', 371),
+ (u'PyString_AsString', 367),
+ (u'Py_InitModule4_64', 347),
+ (u'PyDict_SetItemString', 336)]
 ----
-
-FIXME: this is just a snapshot of the 2013-02-25 data (113 packages)
 
 
 What are the 20 *least* commonly used  Py/_Py entrypoints?
