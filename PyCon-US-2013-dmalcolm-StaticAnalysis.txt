@@ -313,6 +313,16 @@ make CC=/path/to/built/plugin/gcc-with-cpychecker
 ----
 to override the *Makefile variable* CC.
 
+
+Let us know how you get on!
+---------------------------
+
+Mailing list:
+
+* gcc-python-plugin@lists.fedorahosted.org
+** See: https://fedorahosted.org/mailman/listinfo/gcc-python-plugin
+
+
 Analyze all the things!
 -----------------------
 
@@ -965,6 +975,8 @@ Q & A
 image::http://i.creativecommons.org/l/by-sa/3.0/88x31.png[Creative Commons License, link="http://creativecommons.org/licenses/by-sa/3.0/deed.en_US"]
 
 This work is licensed under a http://creativecommons.org/licenses/by-sa/3.0/deed.en_US[Creative Commons Attribution-ShareAlike 3.0 Unported License]
+
+cpychecker's mailing list: https://fedorahosted.org/mailman/listinfo/gcc-python-plugin
 
 Source code for talk: https://github.com/davidmalcolm/PyCon-US-2013-Talk
 
