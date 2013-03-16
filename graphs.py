@@ -6,6 +6,7 @@ def make_chart(data, dstfilename, xlabel, title):
     """
     data : list of name, value pairs
     """
+    data = data[::-1]
 
     pos = pylab.arange(len(data))+.5    # the bar centers on the y axis
     val = [kv[1] for kv in data]
@@ -43,8 +44,8 @@ def cyclomatic():
         ],
             'cylcomatic complexity',
             'What were the 10 most complicated functions?')
-def all_errors():
-    ALL_ERRORS = [
+def all_warnings():
+    ALL_WARNINGS = [
             ((u'clang-analyzer', None), 5349),
             ((u'cpychecker', u'mismatching-type-in-format-string'), 2962),
             ((u'cpychecker', u'refcount-too-high'), 2614),
@@ -136,11 +137,12 @@ def all_errors():
             ((u'cppcheck', u'autoVariables'), 1),
             ((u'gcc', u'vla'), 1)]
     return ([('%s: %s' % (checker, test if test else '(all)'), count)
-             for (checker, test), count in ALL_ERRORS][:20], # top 20
+             for (checker, test), count in ALL_WARNINGS][:20], # top 20
             '# seen', 'Kinds of warning (top 20)')
 
-def cpychecker_errors():
-    return ([(u'mismatching-type-in-format-string', 2962),
+def cpychecker_warnings():
+    CPYCHECKER_WARNINGS = [
+             (u'mismatching-type-in-format-string', 2962),
              (u'refcount-too-high', 2614),
              (u'returns-NULL-without-setting-exception', 1641),
              (u'null-ptr-dereference', 907),
@@ -158,13 +160,16 @@ def cpychecker_errors():
              (u'call-of-null-function-ptr', 4),
              (u'unknown-format-char', 2),
              (u'arithmetic-error', 1),
-             (u'missing-NULL-terminator-in-PyMethodDef-table', 1)],
-            '# seen', 'cpychecker errors')
+             (u'missing-NULL-terminator-in-PyMethodDef-table', 1),
+             ]
+    return (CPYCHECKER_WARNINGS,
+            '# seen',
+            'cpychecker warnings')
 
-#fn = most_common_entrypoints
+fn = most_common_entrypoints
 #fn = cyclomatic
-fn = all_errors
-#fn = cpychecker_errors
+#fn = all_warnings
+#fn = cpychecker_warnings
 data, xlabel, title = fn()
 
 pprint(data)
