@@ -42,8 +42,9 @@ def cyclomatic():
         ('pymol-1.4.1:layer2/RepCylBond.c:RepCylBondNew', 386),
         ('pymol-1.4.1:layer2/RepWireBond.c:RepWireBondNew', 325),
         ],
-            'cylcomatic complexity',
+            'cyclomatic complexity',
             'What were the 10 most complicated functions?')
+
 def all_warnings():
     ALL_WARNINGS = [
             ((u'clang-analyzer', None), 5349),
@@ -166,9 +167,9 @@ def cpychecker_warnings():
             '# seen',
             'cpychecker warnings')
 
-fn = most_common_entrypoints
+#fn = most_common_entrypoints
 #fn = cyclomatic
-#fn = all_warnings
+fn = all_warnings
 #fn = cpychecker_warnings
 data, xlabel, title = fn()
 
